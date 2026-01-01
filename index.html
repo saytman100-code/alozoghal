@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الو ذغال | سفارش آنلاین</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="icon" href="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg">
+
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+        :root { --fire: #ff4d00; --gold: #e2b04a; --bg: #050505; --royal: #ffd700; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background: var(--bg); color: #fff; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 0%, #3a1100 0%, #050505 80%);
+            display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
+        }
+
+        /* استایل بنر هوشمند نصب (اضافه شده) */
+        #pwa-install-banner {
+            display: none; position: fixed; bottom: 90px; left: 15px; right: 15px;
+            background: rgba(20, 20, 20, 0.95); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 12px; z-index: 2000; backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(226, 176, 74, 0.4); animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .banner-content { display: flex; align-items: center; gap: 12px; }
+        .banner-logo { width: 45px; height: 45px; border-radius: 10px; border: 1px solid var(--gold); }
+        .banner-text { flex: 1; font-size: 12px; color: #fff; text-align: right; }
+        .btn-install-now { background: var(--gold); color: #000; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .header-section { text-align: center; margin-bottom: 20px; }
+        .main-logo { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 15px rgba(226, 176, 74, 0.4); }
+        
+        .brand-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+        .brand-name { font-size: 26px; font-weight: 900; color: var(--gold); }
+        
+        .fire-anim { display: inline-block; animation: heatPulse 1.5s infinite alternate; filter: drop-shadow(0 0 2px #ff4d00); font-size: 24px; }
+        @keyframes heatPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4d00) brightness(1); }
+            100% { transform: scale(1.15) rotate(-3deg); filter: drop-shadow(0 0 12px #ffae00) brightness(1.3); }
+        }
+
+        .sub-brand { 
+            font-size: 16px; font-weight: bold; color: var(--royal); margin-top: 5px; 
+            animation: blinkGold 1.2s infinite; text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+        
+        .challenge-link {
+            display: block; margin: 15px 0; padding: 10px; text-decoration: none; color: #fff; background: rgba(255, 215, 0, 0.1);
+            border: 1px dashed var(--gold); border-radius: 12px; font-weight: bold; font-size: 14px; animation: blinkChallenge 1.5s infinite; transition: 0.3s;
+        }
+        @keyframes blinkChallenge {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 5px var(--gold); }
+            50% { opacity: 0.7; transform: scale(0.98); box-shadow: 0 0 15px var(--fire); }
+        }
+
+        @keyframes blinkGold {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.97); }
+        }
+
+        .media-container { width: 100%; max-width: 420px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(226, 176, 74, 0.4); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: #000; }
+        
+        .video-slider { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; }
+        .video-wrapper { display: flex; transition: transform 0.6s ease-in-out; height: 100%; }
+        .video-wrapper video { width: 100%; flex-shrink: 0; object-fit: cover; }
+        
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: #fff; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; z-index: 10; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .prev-btn { left: 10px; } .next-btn { right: 10px; }
+        .mute-toggle { position: absolute; bottom: 10px; left: 10px; z-index: 10; background: var(--gold); border: none; width: 35px; height: 35px; border-radius: 50%; color: #000; cursor: pointer; }
+
+        .image-fader { position: relative; width: 100%; aspect-ratio: 16/9; border-top: 2px solid #222; }
+        .image-fader img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; left: 0; top: 0; }
+        .image-fader img.active { opacity: 1; }
+
+        .reviews-container {
+            width: 100%; max-width: 420px; background: rgba(226, 176, 74, 0.05);
+            border: 1px solid rgba(226, 176, 74, 0.2); border-radius: 20px;
+            padding: 15px; margin-bottom: 20px; min-height: 95px; text-align: center;
+        }
+        #comment-content { transition: opacity 0.6s; font-size: 14px; line-height: 1.6; }
+        .c-name { color: var(--gold); font-weight: bold; display: block; margin-bottom: 4px; }
+
+        .order-card { width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; margin-bottom: 6px; color: #bbb; font-size: 13px; }
+        input, textarea, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 12px; color: #fff; text-align: right; font-size: 16px; outline: none; }
+
+        .qty-box { display: flex; align-items: center; justify-content: space-between; background: #000; border-radius: 12px; padding: 5px; border: 1px solid #333; direction: ltr; margin-bottom: 10px; }
+        .qty-btn { width: 45px; height: 45px; border-radius: 10px; border: none; background: #1a1a1a; color: var(--gold); font-size: 24px; cursor: pointer; }
+
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #b8860b); color: #000; }
+        .btn-gps { background: transparent; color: #fff; border: 1px solid #555; font-size: 13px; }
+        .btn-wa { background: #25D366; color: #fff; display: none; text-decoration: none; text-align: center; }
+        .btn-action { display: flex; gap: 10px; }
+        .btn-edit { background: #444; color: #fff; }
+        .btn-reset { background: #8b0000; color: #fff; }
+
+        .invoice-card { display: none; background: #1a1a1a; border: 3px double var(--gold); border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; }
+        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted #444; padding-bottom: 4px; font-size: 14px; }
+        
+        .site-footer {
+            width: 100%; max-width: 420px; background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(226, 176, 74, 0.3); border-radius: 25px;
+            padding: 25px 15px; margin-top: 25px; text-align: center;
+        }
+        .footer-logo-small { width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--gold); margin-bottom: 10px; }
+        .footer-text { font-size: 13px; color: #bbb; line-height: 1.7; text-align: justify; }
+        .footer-info-list { list-style: none; font-size: 13px; color: #ddd; margin-top: 10px; }
+
+        .call-float { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 28px; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <div id="pwa-install-banner">
+        <div class="banner-content">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="banner-logo">
+            <div class="banner-text"><b>نصب اپلیکیشن الو ذغال</b><br>برای دسترسی سریع و راحت</div>
+            <button class="btn-install-now" id="installBtn">نصب</button>
+        </div>
+    </div>
+
+    <div class="header-section">
+        <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="main-logo">
+        <div class="brand-container"><span class="fire-anim">🔥</span><div class="brand-name">الو ذغال</div><span class="fire-anim">🔥</span></div>
+        <div class="sub-brand">سفارش سریع ذغال</div>
+    </div>
+
+    <div class="media-container">
+        <div class="video-slider">
+            <button class="mute-toggle" onclick="toggleMute()"><span id="muteIcon">🔇</span></button>
+            <button class="nav-btn prev-btn" onclick="moveVideoSlide(-1)">❮</button>
+            <button class="nav-btn next-btn" onclick="moveVideoSlide(1)">❯</button>
+            <div class="video-wrapper" id="videoWrapper">
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/a8c2f66bea9ea321326456dd5d058f26_720w.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172500_130.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172447_155.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172436_806.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172430_170.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172407_619.mp4" type="video/mp4"></video>
+            </div>
+        </div>
+        <div class="image-fader" id="imgFader">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/fa9760cb699d50f589f54d7ceb504aea.jpg" class="active">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/b0e3ef2df45f5efe02e183abb11f6d2c.jpg">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/ace2a27b61a4197c224de5881042326d.jpg">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/2e3b9282f870ecf847697d6e3ff07a58.jpg">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/122d58031851cec0be5ae6c33c1ae4e7.jpg">
+        </div>
+    </div>
+
+    <div class="reviews-container"><div id="comment-content">بارگذاری نظرات...</div></div>
+
+    <div class="order-card">
+        <div id="form-area">
+            <div class="form-group"><label>👤 نام و نام خانوادگی:</label><input type="text" id="custName" placeholder="نام خود را وارد کنید..."></div>
+            <div class="form-group"><label>🕒 زمان تحویل:</label>
+                <select id="delivTime">
+                    <option value="فوری">فوری</option>
+                    <option value="۱ ساعت دیگه">۱ ساعت دیگه</option>
+                    <option value="۲ ساعت دیگه">۲ ساعت دیگه</option>
+                    <option value="۳ ساعت دیگه">۳ ساعت دیگه</option>
+                    <option value="۴ ساعت دیگه">۴ ساعت دیگه</option>
+                    <option value="۵ ساعت دیگه">۵ ساعت دیگه</option>
+                </select>
+            </div>
+            <div class="form-group"><label>🏠 آدرس محله/کوچه:</label><textarea id="custAddr" rows="2" placeholder="آدرس برای ارسال پیک"></textarea></div>
+            
+            <div class="form-group"><label>🔢 تعداد کیسه ذغال (۶۵,۰۰۰ ت):</label>
+                <div class="qty-box">
+                    <button class="qty-btn" onclick="updateQty('zoghal', 1)">+</button>
+                    <span id="qty-zoghal" style="font-size: 22px; font-weight: bold;">۱</span>
+                    <button class="qty-btn" onclick="updateQty('zoghal', -1)">-</button>
+                </div>
+            </div>
+
+            <div class="form-group"><label>🥗 تعداد بسته سبزی (۳۵,۰۰۰ ت):</label>
+                <div class="qty-box">
+                    <button class="qty-btn" onclick="updateQty('sabzi', 1)">+</button>
+                    <span id="qty-sabzi" style="font-size: 22px; font-weight: bold;">۰</span>
+                    <button class="qty-btn" onclick="updateQty('sabzi', -1)">-</button>
+                </div>
+            </div>
+
+            <button class="btn btn-gps" id="gpsBtn" onclick="getLocation()">📍 ثبت لوکیشن (GPS)</button>
+            <button class="btn btn-gold" onclick="generateInvoice()">✨ مشاهده فاکتور نهایی</button>
+
+            <a href="https://aloozoghal-hash.github.io/-Mir-mir-/" class="challenge-link">
+                💥چالش رو ببر  ۳ کیسه ذغال جایزه بگیر💥
+            </a>
+        </div>
+
+        <div id="invoice" class="invoice-card">
+            <h3 style="color:var(--gold); margin-bottom:10px;">📑 سفارش نهایی</h3>
+            <div class="invoice-row"><span>سفارش من:</span> <b id="inv-name"></b></div>
+            <div class="invoice-row" id="row-inv-zoghal"><span>ذغال:</span> <b id="inv-qty-zoghal"></b> کیسه</div>
+            <div class="invoice-row" id="row-inv-sabzi"><span>سبزی:</span> <b id="inv-qty-sabzi"></b> بسته</div>
+            <div class="invoice-row"><span>زمان:</span> <b id="inv-time"></b></div>
+            <div class="invoice-row"><span>مبلغ کل:</span> <span><b id="inv-price"></b> تومان</span></div>
+            <p style="font-size: 13px; color: #ffd700; margin-top: 10px; line-height: 1.5;"></p>
+            
+            <div class="btn-action">
+                <button class="btn btn-edit" onclick="editOrder()">اصلاح</button>
+                <button class="btn btn-reset" onclick="resetForm()">سفارش مجدد</button>
+            </div>
+        </div>
+        <a id="waLink" href="#" class="btn btn-wa">📱 ارسال سفارش به الو ذغال  </a>
+    </div>
+
+    <footer class="site-footer">
+        <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="footer-logo-small">
+        <div style="color:var(--gold); font-weight:bold; margin-bottom:10px;">درباره الو ذغال</div>
+        <p class="footer-text">
+            الو ذغال از دل ایذه برای سفره‌های باصفای شما. هدف ما ساده است: رساندن مرغوب‌ترین ذغال کباب به دست شما مشتری عزیز در کمترین زمان ممکن. تا لذت کباب خوردن برایتان دوچندان شود.
+        </p>
+        <ul class="footer-info-list">
+            <li>📍 آدرس: ایذه، پارک لاله</li>
+            <li style="direction: ltr; margin-top:5px;">۰۹۲۲ ۰۷۳ ۰۶۲۸ 📞</li>
+            <li style="margin-top:5px; font-size:11px; color:#666;">🕒 پاسخگویی: ۷ صبح تا ۹ شب</li>
+        </ul>
+        <div style="font-size: 10px; color: #444; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px;">© ۲۰۲۵ تمامی حقوق برای الو ذغال محفوظ است.</div>
+    </footer>
+
+    <a href="tel:09220730628" class="call-float">📞</a>
+
+    <script>
+        // کدهای اسکریپت اصلی شما
+        const comments = [
+            { n: "مرادی", t: "ذغالس عالیه دمت گرم فنگه نداشتن    ،." },
+            { n: "محمودی", t: "دمتون گرم، ذغال‌ها درشت و بدون خاکه بود." },
+            { n: "اسماعیل‌وندی", t: "توی ایذه هیچ‌جا اینجوری سریع ذغال کباب نمیرسونه." },
+            { n: "شیخ‌زاده", t: "ماندگاری حرارتش برای جوجه کباب حرف نداشت." },
+            { n: "غریبی", t: "یه پلاستیک خریدم ۲ولا کواب کردم دمت گرم." },
+            { n: "صادقی", t: "ذغال کباب لری  ، بوی خیلی خوبی به کباب داد." },
+            { n: "کاوسی", t: "بدون فنگه بی ." },
+            { n: "نظری", t: "پیک‌تون خیلی زود رسید، دمتون گرم." },
+            { n: "کیانی", t: "ذغال کباب با این قیمت و کیفیت توی بازار پیدا نمیشه." },
+            { n: "سعیدی", t: "خیلی راحت روشن شد، نیازی به باد زدن زیاد نداشت." },
+            { n: "بختياری", t: "بهترین کیفیت ذغال ایذه." },
+            { n: "منجزی", t: "بسته‌بندی تمیز و ذغال‌های یکدست." },
+            { n: "سراکی", t: "حرارتش خیلی یکنواخت بود." },
+            { n: "حاجی‌وند", t: " عالی بود." },
+            { n: "جمشیدی", t: "هیچ خاکه نداشت خیلی کم👍." },
+            { n: "خسروی", t: "از پاسخگویی سریع‌تون ممنونم." },
+            { n: "داودی", t: "ذغال‌ها، سریع روشن شدن." },
+            { n: "رحیمی", t: "به کل فامیل معرفی‌تون کردم." },
+            { n: "اسدی", t: "ذغال کباب اصل ایذه، دمتون گرم." },
+            { n: "نوروزی", t: "ارسال‌تون خیلی سریع و عالیه." }
+        ];
+
+        let cIdx = 0; function cycleComments() {
+            const d = document.getElementById('comment-content'); d.style.opacity = 0;
+            setTimeout(() => { const c = comments[cIdx % comments.length]; d.innerHTML = `<span class="c-name">${c.n}:</span>${c.t}<br>⭐⭐⭐⭐⭐`; d.style.opacity = 1; cIdx++; }, 600);
+        }
+        setInterval(cycleComments, 5000); cycleComments();
+
+        let iIdx = 0; const imgs = document.querySelectorAll('#imgFader img');
+        setInterval(() => { if(imgs.length) { imgs[iIdx].classList.remove('active'); iIdx = (iIdx + 1) % imgs.length; imgs[iIdx].classList.add('active'); } }, 3000);
+
+        const videoWrapper = document.getElementById('videoWrapper');
+        const vids = document.querySelectorAll('#videoWrapper video');
+        let currentVidIdx = 0;
+        let isMuted = true;
+
+        function moveVideoSlide(direction) {
+            vids[currentVidIdx].pause();
+            currentVidIdx = (currentVidIdx + direction + vids.length) % vids.length;
+            videoWrapper.style.transform = `translateX(${currentVidIdx * 100}%)`;
+            playCurrentVideo();
+        }
+
+        function playCurrentVideo() {
+            const activeVid = vids[currentVidIdx];
+            activeVid.muted = isMuted;
+            activeVid.play().catch(e => console.log("Auto-play blocked"));
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            vids[currentVidIdx].muted = isMuted;
+            document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
+        }
+
+        let zCount = 1; let sCount = 0; let locL = "";
+        
+        function updateQty(type, v) {
+            if(type === 'zoghal') {
+                if(zCount + v >= 1) { zCount += v; document.getElementById('qty-zoghal').innerText = zCount; }
+            } else {
+                if(sCount + v >= 0) { sCount += v; document.getElementById('qty-sabzi').innerText = sCount; }
+            }
+        }
+
+        function getLocation() {
+            if(navigator.geolocation) {
+                document.getElementById('gpsBtn').innerText="در حال ثبت...";
+                navigator.geolocation.getCurrentPosition(p => {
+                    locL = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+                    document.getElementById('gpsBtn').innerText="✅ لوکیشن ثبت شد";
+                });
+            }
+        }
+
+        function editOrder() {
+            document.getElementById('form-area').style.display='block';
+            document.getElementById('invoice').style.display='none';
+            document.getElementById('waLink').style.display='none';
+        }
+
+        function resetForm() {
+            zCount = 1; sCount = 0; locL = "";
+            document.getElementById('qty-zoghal').innerText = 1;
+            document.getElementById('qty-sabzi').innerText = 0;
+            document.getElementById('custName').value = "";
+            document.getElementById('custAddr').value = "";
+            document.getElementById('gpsBtn').innerText = "📍 ثبت لوکیشن (GPS)";
+            editOrder();
+        }
+
+        function generateInvoice() {
+            const name = document.getElementById('custName').value; const addr = document.getElementById('custAddr').value;
+            const time = document.getElementById('delivTime').value;
+            if(!name || !addr) return alert("لطفاً نام و آدرس را وارد کنید");
+            
+            const total = (zCount * 65000) + (sCount * 35000);
+            
+            document.getElementById('inv-name').innerText = name;
+            document.getElementById('inv-qty-zoghal').innerText = zCount;
+            document.getElementById('inv-qty-sabzi').innerText = sCount;
+            document.getElementById('inv-time').innerText = time;
+            document.getElementById('inv-price').innerText = total.toLocaleString();
+            
+            document.getElementById('row-inv-sabzi').style.display = sCount > 0 ? 'flex' : 'none';
+
+            document.getElementById('form-area').style.display='none';
+            document.getElementById('invoice').style.display='block';
+            document.getElementById('waLink').style.display='block';
+
+            let orderText = `📦 ذغال: ${zCount} کیسه\n`;
+            if(sCount > 0) orderText += `🥗 سبزی: ${sCount} بسته\n`;
+
+            const msg = `سلام الو ذغال  خسته نباشی🖐️\n👤 نام: ${name}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}\n\n💥لطفا هماهنگ کنید ذغال به موقع بدستم برسه ممنونم💥`;
+            document.getElementById('waLink').href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
+        }
+
+        window.onload = () => playCurrentVideo();
+
+        // --- اسکریپت اضافه شده برای مدیریت بنر نصب PWA ---
+        let deferredPrompt;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('installBtn');
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // اگر کاربر در حالت Standalone نیست (یعنی نصب نکرده) بنر را نشان بده
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                installBanner.style.display = 'block';
+            }
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBanner.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // مخفی کردن بنر اگر اپلیکیشن قبلاً نصب و باز شده باشد
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installBanner.style.display = 'none';
+        }
+    </script>
+</body>
+    </html>
