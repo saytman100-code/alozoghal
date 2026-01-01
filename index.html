@@ -42,14 +42,25 @@
         .story-ring.add-btn { border: 2px dashed var(--gold); background: rgba(226, 176, 74, 0.1); }
         .story-item span { font-size: 11px; color: #ccc; text-align: center; }
         
-        /* --- استایل کادر تبلیغاتی هوشمند --- */
+        /* --- استایل جدید کادر تبلیغاتی هوشمند (اسلایدر چشمک‌زن) --- */
         .vip-ad-card {
             width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--gold); border-radius: 20px; padding: 15px; margin: 10px 0 20px 0;
+            border: 2px solid var(--gold); border-radius: 20px; padding: 15px; margin: 10px 0 20px 0;
             display: flex; align-items: center; gap: 15px; position: relative; overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: blinkBorder 2s infinite;
         }
-        .vip-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; border: 1px solid var(--gold); }
+        @keyframes blinkBorder {
+            0% { border-color: var(--gold); box-shadow: 0 0 5px var(--gold); }
+            50% { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+            100% { border-color: var(--gold); box-shadow: 0 0 5px var(--gold); }
+        }
+        .fade-anim { animation: fadeInOut 0.8s ease-in-out; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .vip-img { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; border: 1px solid var(--gold); }
         .vip-info { flex: 1; text-align: right; }
         .vip-title { color: var(--gold); font-weight: bold; font-size: 16px; margin-bottom: 5px; }
         .vip-desc { color: #ccc; font-size: 12px; line-height: 1.5; }
@@ -108,18 +119,6 @@
         .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: #fff; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; z-index: 10; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .prev-btn { left: 10px; } .next-btn { right: 10px; }
         .mute-toggle { position: absolute; bottom: 10px; left: 10px; z-index: 10; background: var(--gold); border: none; width: 35px; height: 35px; border-radius: 50%; color: #000; cursor: pointer; }
-
-        .image-fader { position: relative; width: 100%; aspect-ratio: 16/9; border-top: 2px solid #222; }
-        .image-fader img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; left: 0; top: 0; }
-        .image-fader img.active { opacity: 1; }
-
-        .reviews-container {
-            width: 100%; max-width: 420px; background: rgba(226, 176, 74, 0.05);
-            border: 1px solid rgba(226, 176, 74, 0.2); border-radius: 20px;
-            padding: 15px; margin-bottom: 20px; min-height: 95px; text-align: center;
-        }
-        #comment-content { transition: opacity 0.6s; font-size: 14px; line-height: 1.6; }
-        .c-name { color: var(--gold); font-weight: bold; display: block; margin-bottom: 4px; }
 
         .order-card { width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; }
         .form-group { margin-bottom: 15px; text-align: right; }
@@ -199,16 +198,7 @@
                 <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172407_619.mp4" type="video/mp4"></video>
             </div>
         </div>
-        <div class="image-fader" id="imgFader">
-            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/fa9760cb699d50f589f54d7ceb504aea.jpg" class="active">
-            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/b0e3ef2df45f5efe02e183abb11f6d2c.jpg">
-            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/ace2a27b61a4197c224de5881042326d.jpg">
-            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/2e3b9282f870ecf847697d6e3ff07a58.jpg">
-            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/122d58031851cec0be5ae6c33c1ae4e7.jpg">
-        </div>
     </div>
-
-    <div class="reviews-container"><div id="comment-content">بارگذاری نظرات...</div></div>
 
     <div class="order-card">
         <div id="form-area">
@@ -281,21 +271,38 @@
     <a href="tel:09220730628" class="call-float">📞</a>
 
     <script>
-        /* --- لودر تبلیغ کادری هوشمند (جدید) --- */
+        /* --- لودر تبلیغات اسلایدی چشمک‌زن --- */
+        let adsData = [];
+        let currentAdIdx = 0;
+
         async function loadVIPAd() {
             try {
                 const res = await fetch('ads_data.json?v=' + Math.random());
-                const ad = await res.json();
-                document.getElementById('vip-ad-container').innerHTML = `
-                    <div class="vip-ad-card">
-                        <img src="${ad.image}" class="vip-img">
-                        <div class="vip-info">
-                            <div class="vip-title">${ad.title}</div>
-                            <div class="vip-desc">${ad.desc}</div>
-                            <a href="tel:${ad.phone}" class="btn-call-vip">📞 تماس مستقیم</a>
-                        </div>
-                    </div>`;
-            } catch (e) { console.log("VIP Ad Error"); }
+                adsData = await res.json();
+                if(adsData.length > 0) {
+                    showAd();
+                    setInterval(nextAd, 6000); // تغییر تبلیغ هر 6 ثانیه
+                }
+            } catch (e) { console.log("VIP Ad Load Error"); }
+        }
+
+        function showAd() {
+            const ad = adsData[currentAdIdx];
+            const container = document.getElementById('vip-ad-container');
+            container.innerHTML = `
+                <div class="vip-ad-card fade-anim">
+                    <img src="${ad.image}" class="vip-img">
+                    <div class="vip-info">
+                        <div class="vip-title">${ad.title}</div>
+                        <div class="vip-desc">${ad.desc}</div>
+                        <a href="tel:${ad.phone}" class="btn-call-vip">📞 تماس مستقیم</a>
+                    </div>
+                </div>`;
+        }
+
+        function nextAd() {
+            currentAdIdx = (currentAdIdx + 1) % adsData.length;
+            showAd();
         }
 
         /* --- منطق استوری‌ها --- */
@@ -336,35 +343,7 @@
             window.location.href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
         }
 
-        const comments = [
-            { n: "مرادی", t: "ذغالس عالیه دمت گرم فنگه نداشتن    ،." },
-            { n: "محمودی", t: "دمتون گرم، ذغال‌ها درشت و بدون خاکه بود." },
-            { n: "اسماعیل‌وندی", t: "توی ایذه هیچ‌جا اینجوری سریع ذغال کباب نمیرسونه." },
-            { n: "شیخ‌زاده", t: "ماندگاری حرارتش برای جوجه کباب حرف نداشت." },
-            { n: "غریبی", t: "یه پلاستیک خریدم ۲ولا کواب کردم دمت گرم." },
-            { n: "صادقی", t: "ذغال کباب لری  ، بوی خیلی خوبی به کباب داد." },
-            { n: "کاوسی", t: "بدون فنگه بی ." },
-            { n: "نظری", t: "پیک‌تون خیلی زود رسید، دمتون گرم." },
-            { n: "کیانی", t: "ذغال کباب با این قیمت و کیفیت توی بازار پیدا نمیشه." },
-            { n: "سعیدی", t: "خیلی راحت روشن شد، نیازی به باد زدن زیاد نداشت." }
-        ];
-
-        let cIdx = 0; function cycleComments() {
-            const d = document.getElementById('comment-content'); d.style.opacity = 0;
-            setTimeout(() => { const c = comments[cIdx % comments.length]; d.innerHTML = `<span class="c-name">${c.n}:</span>${c.t}<br>⭐⭐⭐⭐⭐`; d.style.opacity = 1; cIdx++; }, 600);
-        }
-        setInterval(cycleComments, 5000);
-
-        let iIdx = 0; 
-        setInterval(() => { 
-            const imgs = document.querySelectorAll('#imgFader img');
-            if(imgs.length) { 
-                imgs[iIdx].classList.remove('active'); 
-                iIdx = (iIdx + 1) % imgs.length; 
-                imgs[iIdx].classList.add('active'); 
-            } 
-        }, 3000);
-
+        /* --- پلیر ویدیو --- */
         const videoWrapper = document.getElementById('videoWrapper');
         const vids = document.querySelectorAll('#videoWrapper video');
         let currentVidIdx = 0;
@@ -389,6 +368,7 @@
             document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
         }
 
+        /* --- فرم سفارش --- */
         let zCount = 1; let sCount = 0; let locL = "";
         
         function updateQty(type, v) {
@@ -403,7 +383,7 @@
             if(navigator.geolocation) {
                 document.getElementById('gpsBtn').innerText="در حال ثبت...";
                 navigator.geolocation.getCurrentPosition(p => {
-                    locL = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+                    locL = `http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
                     document.getElementById('gpsBtn').innerText="✅ لوکیشن ثبت شد";
                 });
             }
@@ -442,9 +422,8 @@
 
         window.onload = () => {
             playCurrentVideo();
-            cycleComments();
             loadStories(); 
-            loadVIPAd(); // لود کردن تبلیغ بنری
+            loadVIPAd();
         };
 
         let deferredPrompt;
