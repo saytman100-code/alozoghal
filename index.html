@@ -23,7 +23,7 @@
             display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
         }
 
-        /* --- استایل استوری‌ها (جدید) --- */
+        /* --- استایل استوری‌ها --- */
         .stories-container {
             display: flex; gap: 15px; padding: 15px 5px; overflow-x: auto; 
             width: 100%; max-width: 420px; scrollbar-width: none;
@@ -42,13 +42,25 @@
         .story-ring.add-btn { border: 2px dashed var(--gold); background: rgba(226, 176, 74, 0.1); }
         .story-item span { font-size: 11px; color: #ccc; text-align: center; }
         
+        /* --- استایل کادر تبلیغاتی هوشمند --- */
+        .vip-ad-card {
+            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--gold); border-radius: 20px; padding: 15px; margin: 10px 0 20px 0;
+            display: flex; align-items: center; gap: 15px; position: relative; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .vip-img { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; border: 1px solid var(--gold); }
+        .vip-info { flex: 1; text-align: right; }
+        .vip-title { color: var(--gold); font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .vip-desc { color: #ccc; font-size: 12px; line-height: 1.5; }
+        .btn-call-vip { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 8px; }
+
         #story-modal {
             display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
             background:rgba(0,0,0,0.95); z-index:10000; justify-content:center; 
             align-items:center; flex-direction:column; backdrop-filter: blur(10px);
         }
 
-        /* سایر استایل‌های قبلی شما */
         #pwa-install-banner {
             display: none; position: fixed; bottom: 90px; left: 15px; right: 15px;
             background: rgba(20, 20, 20, 0.95); border: 1px solid var(--gold);
@@ -165,6 +177,8 @@
         </div>
     </div>
 
+    <div id="vip-ad-container"></div>
+
     <div id="story-modal">
         <span onclick="closeStory()" style="position:absolute; top:30px; right:30px; font-size:40px; color:white; cursor:pointer; font-weight:bold;">×</span>
         <img id="story-full-img" src="" style="max-width:90%; max-height:75%; border-radius:15px; border:2px solid var(--gold); box-shadow: 0 0 20px rgba(226,176,74,0.5);">
@@ -267,10 +281,26 @@
     <a href="tel:09220730628" class="call-float">📞</a>
 
     <script>
-        /* --- منطق استوری‌ها (جدید) --- */
+        /* --- لودر تبلیغ کادری هوشمند (جدید) --- */
+        async function loadVIPAd() {
+            try {
+                const res = await fetch('ads_data.json?v=' + Math.random());
+                const ad = await res.json();
+                document.getElementById('vip-ad-container').innerHTML = `
+                    <div class="vip-ad-card">
+                        <img src="${ad.image}" class="vip-img">
+                        <div class="vip-info">
+                            <div class="vip-title">${ad.title}</div>
+                            <div class="vip-desc">${ad.desc}</div>
+                            <a href="tel:${ad.phone}" class="btn-call-vip">📞 تماس مستقیم</a>
+                        </div>
+                    </div>`;
+            } catch (e) { console.log("VIP Ad Error"); }
+        }
+
+        /* --- منطق استوری‌ها --- */
         async function loadStories() {
             try {
-                // اضافه کردن رندوم برای جلوگیری از کش شدن در گیت‌هاب
                 const response = await fetch('stories_data.json?v=' + Math.random());
                 const stories = await response.json();
                 const wrapper = document.getElementById('stories-wrapper');
@@ -306,7 +336,6 @@
             window.location.href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
         }
 
-        // --- کدهای قبلی شما ---
         const comments = [
             { n: "مرادی", t: "ذغالس عالیه دمت گرم فنگه نداشتن    ،." },
             { n: "محمودی", t: "دمتون گرم، ذغال‌ها درشت و بدون خاکه بود." },
@@ -414,10 +443,10 @@
         window.onload = () => {
             playCurrentVideo();
             cycleComments();
-            loadStories(); // اجرای لودر استوری‌ها
+            loadStories(); 
+            loadVIPAd(); // لود کردن تبلیغ بنری
         };
 
-        // PWA logic
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
