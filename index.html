@@ -271,22 +271,45 @@
     <a href="tel:09220730628" class="call-float">📞</a>
 
     <script>
-        /* --- لودر تبلیغات اسلایدی چشمک‌زن --- */
+        /* --- لودر هوشمند اطلاعات از data.json --- */
         let adsData = [];
         let currentAdIdx = 0;
 
-        async function loadVIPAd() {
+        async function loadAllContent() {
             try {
-                const res = await fetch('ads_data.json?v=' + Math.random());
-                adsData = await res.json();
-                if(adsData.length > 0) {
-                    showAd();
-                    setInterval(nextAd, 6000); // تغییر تبلیغ هر 6 ثانیه
+                // دریافت دیتای یکپارچه
+                const response = await fetch('data.json?v=' + Math.random());
+                const data = await response.json();
+
+                // ۱. بارگذاری استوری‌ها
+                if (data.stories) {
+                    const wrapper = document.getElementById('stories-wrapper');
+                    const addBtn = document.getElementById('add-story-btn');
+                    data.stories.forEach(story => {
+                        const div = document.createElement('div');
+                        div.className = 'story-item';
+                        div.onclick = () => showStory(story.image, story.link);
+                        div.innerHTML = `
+                            <div class="story-ring active">
+                                <img src="${story.thumb}">
+                            </div>
+                            <span>${story.name}</span>
+                        `;
+                        wrapper.insertBefore(div, addBtn);
+                    });
                 }
-            } catch (e) { console.log("VIP Ad Load Error"); }
+
+                // ۲. بارگذاری تبلیغات VIP
+                if (data.ads && data.ads.length > 0) {
+                    adsData = data.ads;
+                    showAd();
+                    setInterval(nextAd, 6000);
+                }
+            } catch (e) { console.log("Data error or file not found."); }
         }
 
         function showAd() {
+            if (adsData.length === 0) return;
             const ad = adsData[currentAdIdx];
             const container = document.getElementById('vip-ad-container');
             container.innerHTML = `
@@ -305,29 +328,7 @@
             showAd();
         }
 
-        /* --- منطق استوری‌ها --- */
-        async function loadStories() {
-            try {
-                const response = await fetch('stories_data.json?v=' + Math.random());
-                const stories = await response.json();
-                const wrapper = document.getElementById('stories-wrapper');
-                const addBtn = document.getElementById('add-story-btn');
-
-                stories.forEach(story => {
-                    const div = document.createElement('div');
-                    div.className = 'story-item';
-                    div.onclick = () => showStory(story.image, story.link);
-                    div.innerHTML = `
-                        <div class="story-ring active">
-                            <img src="${story.thumb}">
-                        </div>
-                        <span>${story.name}</span>
-                    `;
-                    wrapper.insertBefore(div, addBtn);
-                });
-            } catch (e) { console.log("Story Load Error"); }
-        }
-
+        /* --- سایر توابع سیستم شما --- */
         function showStory(img, link) {
             document.getElementById('story-full-img').src = img;
             document.getElementById('story-link').href = link;
@@ -339,11 +340,10 @@
         }
 
         function requestStory() {
-            const msg = "سلام الو ذغال! درخواست ثبت تبلیغ در بخش استوری سایت را دارم. لطفا شرایط را بفرستید.";
+            const msg = "سلام الو ذغال! درخواست ثبت تبلیغ در بخش استوری سایت را دارم.";
             window.location.href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
         }
 
-        /* --- پلیر ویدیو --- */
         const videoWrapper = document.getElementById('videoWrapper');
         const vids = document.querySelectorAll('#videoWrapper video');
         let currentVidIdx = 0;
@@ -358,8 +358,10 @@
 
         function playCurrentVideo() {
             const activeVid = vids[currentVidIdx];
-            activeVid.muted = isMuted;
-            activeVid.play().catch(e => {});
+            if(activeVid) {
+                activeVid.muted = isMuted;
+                activeVid.play().catch(e => {});
+            }
         }
 
         function toggleMute() {
@@ -368,7 +370,6 @@
             document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
         }
 
-        /* --- فرم سفارش --- */
         let zCount = 1; let sCount = 0; let locL = "";
         
         function updateQty(type, v) {
@@ -383,7 +384,7 @@
             if(navigator.geolocation) {
                 document.getElementById('gpsBtn').innerText="در حال ثبت...";
                 navigator.geolocation.getCurrentPosition(p => {
-                    locL = `http://maps.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+                    locL = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
                     document.getElementById('gpsBtn').innerText="✅ لوکیشن ثبت شد";
                 });
             }
@@ -416,14 +417,11 @@
             document.getElementById('waLink').style.display='none';
         }
 
-        function resetForm() {
-            location.reload();
-        }
+        function resetForm() { location.reload(); }
 
         window.onload = () => {
             playCurrentVideo();
-            loadStories(); 
-            loadVIPAd();
+            loadAllContent(); // بارگذاری استوری و تبلیغ از data.json
         };
 
         let deferredPrompt;
